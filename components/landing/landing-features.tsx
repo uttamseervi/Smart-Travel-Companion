@@ -43,7 +43,7 @@ export function LandingFeatures() {
   const isInView = useInView(ref, { once: true, amount: 0.2 })
 
   return (
-    <section className="py-20 bg-muted/50" ref={ref}>
+    <section className="py-20 bg-muted/50 flex justify-center" ref={ref}>
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Your Complete Travel Companion</h2>

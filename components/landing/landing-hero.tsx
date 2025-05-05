@@ -20,7 +20,7 @@ export function LandingHero() {
   }
 
   return (
-    <div className="relative min-h-[90vh] flex items-center">
+    <div className="relative min-h-[90vh] items-center px-8 flex justify-center">
       {/* Background image with overlay */}
       <div
         className="absolute inset-0 bg-cover bg-center z-0"

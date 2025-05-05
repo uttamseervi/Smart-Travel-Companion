@@ -10,7 +10,7 @@ export function LandingCTA() {
   const isInView = useInView(ref, { once: true, amount: 0.2 })
 
   return (
-    <section className="py-20 bg-primary text-primary-foreground" ref={ref}>
+    <section className="py-20 bg-primary text-primary-foreground flex justify-center" ref={ref}>
       <div className="container">
         <motion.div
           className="max-w-3xl mx-auto text-center"
@@ -31,7 +31,7 @@ export function LandingCTA() {
               asChild
               size="lg"
               variant="outline"
-              className="text-base border-primary-foreground/20 hover:bg-primary-foreground/10"
+              className="text-base border-primary-foreground/20 bg-neutral-900 hover:bg-primary-foreground/100"
             >
               <Link href="/dashboard/itinerary">Plan My Trip</Link>
             </Button>
