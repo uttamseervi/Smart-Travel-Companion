@@ -68,7 +68,7 @@ export default function DestinationPage({ params }: DestinationPageProps) {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="min-h-screen bg-white">
             {/* Hero Section */}
             <div className="relative h-[70vh] w-full">
                 <Image
@@ -78,7 +78,7 @@ export default function DestinationPage({ params }: DestinationPageProps) {
                     className="object-cover"
                     priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-blue-800/20 to-transparent" />
+                <div className="absolute inset-0 bg-black/60" />
 
                 <div className="absolute inset-0 flex items-center justify-center">
                     <motion.div
@@ -100,7 +100,7 @@ export default function DestinationPage({ params }: DestinationPageProps) {
                         </div>
                         <div className="flex flex-wrap justify-center gap-2">
                             {location.categories.map((category, index) => (
-                                <Badge key={index} className="bg-blue-600/80 text-white border-blue-400/50 text-sm px-3 py-1 backdrop-blur-sm">
+                                <Badge key={index} className="bg-black/30 text-white border-blue-400/50 text-sm px-3 py-1 backdrop-blur-sm">
                                     {category.charAt(0).toUpperCase() + category.slice(1)}
                                 </Badge>
                             ))}
@@ -119,9 +119,9 @@ export default function DestinationPage({ params }: DestinationPageProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.2 }}
                         >
-                            <Card className="bg-white/95 backdrop-blur-sm border-blue-100 shadow-lg">
+                            <Card className="bg-white border border-gray-200 shadow-lg">
                                 <CardHeader>
-                                    <CardTitle className="text-2xl text-blue-900">About {location.name}</CardTitle>
+                                    <CardTitle className="text-2xl text-black">About {location.name}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <p className="text-slate-700 text-lg leading-relaxed mb-6">
@@ -142,16 +142,16 @@ export default function DestinationPage({ params }: DestinationPageProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.3 }}
                         >
-                            <Card className="bg-white/95 backdrop-blur-sm border-blue-100 shadow-lg">
+                            <Card className="bg-white border border-gray-200 shadow-lg">
                                 <CardHeader>
-                                    <CardTitle className="text-2xl text-blue-900">What's Included</CardTitle>
+                                    <CardTitle className="text-2xl text-black">What's Included</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {amenities.map((amenity, index) => (
-                                            <div key={index} className="flex flex-col items-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 hover:shadow-md transition-shadow">
-                                                <amenity.icon className="h-8 w-8 text-blue-600 mb-2" />
-                                                <span className="text-sm font-medium text-center text-blue-900">{amenity.label}</span>
+                                            <div key={index} className="flex flex-col items-center p-4 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                                                <amenity.icon className="h-8 w-8 text-black mb-2" />
+                                                <span className="text-sm font-medium text-center text-black">{amenity.label}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -165,12 +165,12 @@ export default function DestinationPage({ params }: DestinationPageProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.4 }}
                         >
-                            <Card className="bg-white/95 backdrop-blur-sm border-blue-100 shadow-lg">
+                            <Card className="bg-white border border-gray-200 shadow-lg">
                                 <CardHeader>
-                                    <CardTitle className="text-2xl text-blue-900">Location</CardTitle>
+                                    <CardTitle className="text-2xl text-black">Location</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 h-64 rounded-xl flex items-center justify-center border border-blue-200">
+                                    <div className="bg-white h-64 rounded-xl flex items-center justify-center border border-gray-200">
                                         <div className="text-center">
                                             <MapPin className="h-12 w-12 text-blue-500 mx-auto mb-2" />
                                             <p className="text-blue-700 font-medium">Interactive Map</p>
@@ -192,8 +192,8 @@ export default function DestinationPage({ params }: DestinationPageProps) {
                             transition={{ duration: 0.6, delay: 0.3 }}
                             className="sticky top-8"
                         >
-                            <Card className="shadow-xl bg-white/95 backdrop-blur-sm border-blue-200">
-                                <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
+                            <Card className="shadow-xl bg-white border border-gray-200">
+                                <CardHeader className="bg-black text-white rounded-t-lg">
                                     <CardTitle className="text-2xl flex items-center">
                                         <Calendar className="h-6 w-6 mr-2" />
                                         Book Your Trip
@@ -310,7 +310,7 @@ export default function DestinationPage({ params }: DestinationPageProps) {
                                         </div>
 
                                         {/* Pricing */}
-                                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
+                                        <div className="bg-white p-4 rounded-xl border border-gray-200">
                                             <div className="flex justify-between items-center mb-2 text-blue-800">
                                                 <span>Base price (per person)</span>
                                                 <span className="font-medium">$299</span>
@@ -319,26 +319,21 @@ export default function DestinationPage({ params }: DestinationPageProps) {
                                                 <span>Guests × {guests}</span>
                                                 <span className="font-medium">${299 * guests}</span>
                                             </div>
-                                            <div className="flex justify-between items-center font-bold text-lg text-blue-900 border-t border-blue-200 pt-2">
+                                            <div className="flex justify-between items-center font-bold text-lg text-blue-900 border-t border-gray-200 pt-2">
                                                 <span>Total</span>
                                                 <span>${299 * guests}</span>
                                             </div>
                                         </div>
 
-                                        <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white" size="lg">
+                                        <Button type="submit" className="w-full bg-black text-white hover:text-black" size="lg">
                                             Request Booking
                                         </Button>
-
-                                        <div className="text-center text-sm text-blue-600 mt-3">
-                                            <Clock className="h-4 w-4 inline mr-1" />
-                                            You won't be charged yet
-                                        </div>
                                     </form>
                                 </CardContent>
                             </Card>
 
                             {/* Contact Info */}
-                            <Card className="mt-6 bg-white/95 backdrop-blur-sm border-blue-200">
+                            <Card className="mt-6 bg-white border border-gray-200">
                                 <CardHeader>
                                     <CardTitle className="text-blue-900">Need Help?</CardTitle>
                                 </CardHeader>

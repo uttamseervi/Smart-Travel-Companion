@@ -16,6 +16,7 @@ model User {
   name      String?
   bookings  Booking[]
   reviews   Review[]
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -11,6 +11,7 @@ declare module 'next-auth' {
             name?: string | null;
             email?: string | null;
             image?: string | null;
+            password?: string | null;
         };
     }
 }
@@ -30,7 +31,7 @@ export const authOptions: NextAuthOptions = {
                     throw new Error('Email and password required');
                 }
 
-                const user = await db.user.findUnique({
+                const user: any = await db.user.findUnique({
                     where: {
                         email: credentials.email,
                     },

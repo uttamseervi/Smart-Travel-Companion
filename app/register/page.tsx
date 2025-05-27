@@ -81,7 +81,7 @@ export default function RegisterPage() {
             }
 
             router.refresh();
-            router.push('/dashboard');
+            router.push('/');
         } catch (error) {
             setError('An unexpected error occurred');
             console.error('Error during registration:', error);
