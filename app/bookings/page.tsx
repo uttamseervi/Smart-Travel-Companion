@@ -1,9 +1,9 @@
 "use client";
 
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { Calendar as CalendarIcon, Search, MapPin, ChevronDown, Filter, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, Search, MapPin, ChevronDown, Filter, Check, Users, DoorOpen } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Button } from '@/components/ui/button';
@@ -61,6 +61,58 @@ const itemVariants = {
   }
 };
 
+const cityToIata: { [key: string]: string } = {
+  delhi: "DEL",
+  mumbai: "BOM",
+  bangalore: "BLR",
+  hyderabad: "HYD",
+  chennai: "MAA",
+  kolkata: "CCU",
+  ahmedabad: "AMD",
+  pune: "PNQ",
+  jaipur: "JAI",
+  lucknow: "LKO",
+  kochi: "COK",
+  goa: "GOI",
+  indore: "IDR",
+  chandigarh: "IXC",
+  bhopal: "BHO",
+  visakhapatnam: "VTZ",
+  guwahati: "GAU",
+  nagpur: "NAG",
+  varanasi: "VNS",
+  bhubaneswar: "BBI",
+  surat: "STV",
+  amritsar: "ATQ",
+  trivandrum: "TRV",
+  patna: "PAT",
+  coimbatore: "CJB",
+  vadodara: "BDQ",
+  rajkot: "RAJ",
+  raipur: "RPR",
+  mangalore: "IXE",
+  ranchi: "IXR",
+  jodhpur: "JDH",
+  madurai: "IXM",
+  dehradun: "DED",
+  jammu: "IXJ",
+  srinagar: "SXR",
+  imphal: "IMF",
+  agartala: "IXA",
+  mysore: "MYQ",
+  udaipur: "UDR",
+  gorakhpur: "GOP",
+  dibrugarh: "DIB",
+  silchar: "IXS",
+  tirupati: "TIR",
+  pondicherry: "PNY",
+  hubli: "HBX",
+  kanpur: "KNU",
+  dimapur: "DMU",
+  shillong: "SHL",
+  aizawl: "AJL"
+};
+
 export default function BookingsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -75,6 +127,92 @@ export default function BookingsPage() {
     date: undefined as Date | undefined,
     time: '',
   });
+
+  // State for booking type
+const [bookingType, setBookingType] = useState('flights');
+
+// State for flights
+const [flightFrom, setFlightFrom] = useState('');
+const [flightTo, setFlightTo] = useState('');
+const [flightDepartureDate, setFlightDepartureDate] = useState('');
+const [flightReturnDate, setFlightReturnDate] = useState('');
+const [flightTravelers, setFlightTravelers] = useState('1');
+
+// State for hotels
+const [hotelDestination, setHotelDestination] = useState('');
+const [hotelCheckIn, setHotelCheckIn] = useState('');
+const [hotelCheckOut, setHotelCheckOut] = useState('');
+const [hotelRooms, setHotelRooms] = useState('1');
+const [hotelGuests, setHotelGuests] = useState('1');
+
+// Function to handle flight search
+
+
+const handleFlightSearch = () => {
+  const baseUrl = 'https://www.makemytrip.com/flight/search';
+
+  if (!flightFrom || !flightTo || !flightDepartureDate) return;
+
+  const fromCode = cityToIata[flightFrom.toLowerCase()];
+  const toCode = cityToIata[flightTo.toLowerCase()];
+
+  if (!fromCode || !toCode) {
+    alert("Invalid city name entered. Please select from the available options.");
+    return;
+  }
+
+  const departureDate = new Date(flightDepartureDate);
+  const formattedDate = `${String(departureDate.getDate()).padStart(2, '0')}/${String(departureDate.getMonth() + 1).padStart(2, '0')}/${departureDate.getFullYear()}`;
+
+
+  const itinerary = `${fromCode}-${toCode}-${formattedDate}`; // Format: DEL-BLR-06/06/2025
+  const tripType = flightReturnDate ? 'R' : 'O'; // R for round trip, O for one-way
+  const paxType = `A-${flightTravelers}_C-0_I-0`;
+
+  const finalUrl = `${baseUrl}?itinerary=${itinerary}&tripType=${tripType}&paxType=${paxType}&intl=false&cabinClass=E&lang=eng`;
+
+  window.open(finalUrl, '_blank');
+};
+
+
+// Function to handle hotel search
+const handleHotelSearch = () => {
+  // Format dates to DDMMYYYY
+  const formatDateForMMT = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}${month}${year}`;
+  };
+
+  // Get city details
+  const cityName = hotelDestination.toLowerCase() || 'chennai';
+  const cityCode = cityToIata[cityName] ? cityToIata[cityName] + 'A' : 'MAAA'; // Append 'A' to IATA code
+  const displayCityName = hotelDestination || 'Chennai';
+
+  // Construct URL
+  const baseUrl = 'https://www.makemytrip.com/hotels/hotel-listing';
+  const params = new URLSearchParams();
+  
+  // Required parameters
+  params.append('checkin', formatDateForMMT(hotelCheckIn));
+  params.append('checkout', formatDateForMMT(hotelCheckOut));
+  params.append('city', cityCode);
+  params.append('country', 'IN');
+  params.append('locusId', cityCode);
+  params.append('locusType', 'city');
+  params.append('searchText', displayCityName);
+  params.append('regionNearByExp', '3');
+  
+  // Room and guests parameters
+  const roomStayQualifier = `3e${hotelGuests}e0e`;
+  params.append('roomStayQualifier', roomStayQualifier);
+  params.append('rsc', `1e${roomStayQualifier}`);
+  
+  window.open(`${baseUrl}?${params.toString()}`, '_blank');
+};
   
   // Get unique categories
   const allCategories: string[] = [];
@@ -171,607 +309,280 @@ export default function BookingsPage() {
   const guestOptions = Array.from({ length: 8 }, (_, i) => ({ value: (i + 1).toString(), label: (i + 1).toString() }));
   const childrenOptions = Array.from({ length: 6 }, (_, i) => ({ value: i.toString(), label: i.toString() }));
   
-  return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero section */}
-      <section className="relative h-[40vh] flex items-center">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.pexels.com/photos/2245436/pexels-photo-2245436.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-            alt="Bookings and Tours"
-            fill
-            className="object-cover brightness-[0.6]"
-            priority
-          />
-        </div>
-        
-        <div className="container relative z-10 mx-auto px-4 py-12 text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto text-center"
+return (
+  <div className="flex flex-col min-h-screen">
+    {/* Hero section */}
+    <section className="relative h-[50vh] flex items-center">
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="https://images.pexels.com/photos/2245436/pexels-photo-2245436.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+          alt="Travel Bookings"
+          fill
+          className="object-cover brightness-[0.6]"
+          priority
+        />
+      </div>
+      
+      <div className="container relative z-10 mx-auto px-4 py-12 text-white">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-4xl mx-auto text-center"
+        >
+          <motion.h1 
+            className="text-4xl md:text-5xl font-bold mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Book Local Experiences
-            </h1>
-            <p className="text-lg md:text-xl mb-8 text-gray-100">
-              Find and book unique activities and tours for your next adventure
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search activities..."
-                  className="pl-10 bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-gray-300"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <select
-                  className="w-full pl-10 py-2 bg-white/10 backdrop-blur-md border-white/20 text-white rounded-md"
-                  onChange={(e) => setSelectedLocations(e.target.value ? [e.target.value] : [])}
-                  value={selectedLocations[0] || ""}
-                >
-                  <option value="">All locations</option>
-                  {locations.map(location => (
-                    <option key={location.slug} value={location.slug}>{location.name}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="pl-3 text-left font-normal bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    initialFocus
-                    disabled={(date) => date < new Date()}
-                  />
-                </PopoverContent>
-              </Popover>
+            Book Your Perfect Trip
+          </motion.h1>
+          
+          {/* Toggle between Flights and Hotels */}
+          <motion.div
+            className="flex justify-center mb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+          >
+            <div className="inline-flex bg-white/10 backdrop-blur-md rounded-lg p-1">
+              <button
+                onClick={() => setBookingType('flights')}
+                className={`px-6 py-3 rounded-md text-lg font-medium ${bookingType === 'flights' ? 'bg-white text-gray-900' : 'text-white hover:bg-white/20'}`}
+              >
+                Flights
+              </button>
+              <button
+                onClick={() => setBookingType('hotels')}
+                className={`px-6 py-3 rounded-md text-lg font-medium ${bookingType === 'hotels' ? 'bg-white text-gray-900' : 'text-white hover:bg-white/20'}`}
+              >
+                Hotels
+              </button>
             </div>
           </motion.div>
-        </div>
-      </section>
-      
-      {/* Main content */}
-      <section className="py-12 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-8">
-            {/* Filters - Desktop */}
-            <div className="w-full md:w-64 lg:w-72 hidden md:block">
-              <div className="bg-card rounded-lg border p-6 sticky top-24">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-semibold text-lg">Filters</h2>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => {
-                      setSelectedLocations([]);
-                      setSelectedCategories([]);
-                      setPriceRange([]);
-                      setSelectedDate(undefined);
-                    }}
-                    className="h-8 text-xs"
-                  >
-                    Reset
-                  </Button>
-                </div>
-                
-                <div className="space-y-6">
-                  {/* Date filter */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-3">Date</h3>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={setSelectedDate}
-                          initialFocus
-                          disabled={(date) => date < new Date()}
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={bookingType}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {bookingType === 'flights' ? (
+                <div className="bg-white/10 backdrop-blur-md p-6 rounded-lg border border-white/20">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">From</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <input 
+                          type="text" 
+                          placeholder="City or Airport" 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={flightFrom}
+                          onChange={(e) => setFlightFrom(e.target.value)}
                         />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  
-                  <Separator />
-                  
-                  {/* Location filter */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-3">Destinations</h3>
-                    <div className="space-y-2">
-                      {locations.map(location => (
-                        <div className="flex items-center space-x-2\" key={location.slug}>
-                          <Checkbox 
-                            id={`location-${location.slug}`} 
-                            checked={selectedLocations.includes(location.slug)}
-                            onCheckedChange={() => handleLocationChange(location.slug)}
-                          />
-                          <Label 
-                            htmlFor={`location-${location.slug}`}
-                            className="text-sm"
-                          >
-                            {location.name}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  {/* Category filter */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-3">Categories</h3>
-                    <div className="space-y-2">
-                      {allCategories.map(category => (
-                        <div className="flex items-center space-x-2\" key={category}>
-                          <Checkbox 
-                            id={`category-${category}`} 
-                            checked={selectedCategories.includes(category)}
-                            onCheckedChange={() => handleCategoryChange(category)}
-                          />
-                          <Label 
-                            htmlFor={`category-${category}`}
-                            className="text-sm capitalize"
-                          >
-                            {category}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  {/* Price range filter */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-3">Price Range</h3>
-                    <div className="space-y-2">
-                      {['$', '$$', '$$$', '$$$$'].map(price => (
-                        <div className="flex items-center space-x-2\" key={price}>
-                          <Checkbox 
-                            id={`price-${price}`} 
-                            checked={priceRange.includes(price)}
-                            onCheckedChange={() => handlePriceChange(price)}
-                          />
-                          <Label 
-                            htmlFor={`price-${price}`}
-                            className="text-sm"
-                          >
-                            {price}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Mobile filters */}
-            <div className="md:hidden mb-6">
-              <div className="flex items-center justify-between gap-4">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" className="w-full">
-                      <Filter className="mr-2 h-4 w-4" />
-                      Filters
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left">
-                    <SheetHeader>
-                      <SheetTitle>Filters</SheetTitle>
-                    </SheetHeader>
-                    <div className="mt-6 space-y-6">
-                      {/* Date filter */}
-                      <div>
-                        <h3 className="text-sm font-medium mb-3">Date</h3>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className="w-full justify-start text-left font-normal"
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
-                            <Calendar
-                              mode="single"
-                              selected={selectedDate}
-                              onSelect={setSelectedDate}
-                              initialFocus
-                              disabled={(date) => date < new Date()}
-                            />
-                          </PopoverContent>
-                        </Popover>
                       </div>
-                      
-                      <Separator />
-                      
-                      {/* Other filters */}
-                      <div className="space-y-6">
-                        {/* Location filter */}
-                        <div>
-                          <h3 className="text-sm font-medium mb-3">Destinations</h3>
-                          <div className="space-y-3">
-                            {locations.map(location => (
-                              <div className="flex items-center space-x-2\" key={location.slug}>
-                                <Checkbox 
-                                  id={`mobile-location-${location.slug}`} 
-                                  checked={selectedLocations.includes(location.slug)}
-                                  onCheckedChange={() => handleLocationChange(location.slug)}
-                                />
-                                <Label 
-                                  htmlFor={`mobile-location-${location.slug}`}
-                                  className="text-sm"
-                                >
-                                  {location.name}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <Separator />
-                        
-                        {/* Category filter */}
-                        <div>
-                          <h3 className="text-sm font-medium mb-3">Categories</h3>
-                          <div className="space-y-3">
-                            {allCategories.map(category => (
-                              <div className="flex items-center space-x-2\" key={category}>
-                                <Checkbox 
-                                  id={`mobile-category-${category}`} 
-                                  checked={selectedCategories.includes(category)}
-                                  onCheckedChange={() => handleCategoryChange(category)}
-                                />
-                                <Label 
-                                  htmlFor={`mobile-category-${category}`}
-                                  className="text-sm capitalize"
-                                >
-                                  {category}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <Separator />
-                        
-                        {/* Price range filter */}
-                        <div>
-                          <h3 className="text-sm font-medium mb-3">Price Range</h3>
-                          <div className="space-y-3">
-                            {['$', '$$', '$$$', '$$$$'].map(price => (
-                              <div className="flex items-center space-x-2\" key={price}>
-                                <Checkbox 
-                                  id={`mobile-price-${price}`} 
-                                  checked={priceRange.includes(price)}
-                                  onCheckedChange={() => handlePriceChange(price)}
-                                />
-                                <Label 
-                                  htmlFor={`mobile-price-${price}`}
-                                  className="text-sm"
-                                >
-                                  {price}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="pt-4">
-                        <Button 
-                          onClick={() => {
-                            setSelectedLocations([]);
-                            setSelectedCategories([]);
-                            setPriceRange([]);
-                            setSelectedDate(undefined);
-                          }}
-                          variant="outline"
-                          className="w-full"
-                        >
-                          Reset Filters
-                        </Button>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-                
-                <select
-                  className="w-full py-2 px-3 rounded-md border"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                >
-                  <option value="rating">Highest Rated</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="duration">Duration</option>
-                </select>
-              </div>
-            </div>
-            
-            {/* Content */}
-            <div className="flex-1">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold">Available Experiences</h2>
-                  <p className="text-muted-foreground">
-                    {filteredActivities.length} {filteredActivities.length === 1 ? 'experience' : 'experiences'} found
-                    {selectedDate && ` for ${format(selectedDate, "PPP")}`}
-                  </p>
-                </div>
-                
-                <div className="hidden md:block">
-                  <select
-                    className="w-[180px] py-2 px-3 rounded-md border"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                  >
-                    <option value="rating">Highest Rated</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="duration">Duration</option>
-                  </select>
-                </div>
-              </div>
-              
-              {filteredActivities.length > 0 ? (
-                <motion.div 
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-                >
-                  {sortedActivities.map((activity) => (
-                    <motion.div key={activity.id} variants={itemVariants}>
-                      <Card className="overflow-hidden h-full">
-                        <div className="md:flex h-full">
-                          <div className="md:w-2/5 relative h-56 md:h-auto">
-                            <Image
-                              src={activity.image}
-                              alt={activity.name}
-                              fill
-                              className="object-cover"
-                            />
-                            <div className="absolute top-3 left-3">
-                              <Badge className="bg-primary text-primary-foreground">{activity.price}</Badge>
-                            </div>
-                          </div>
-                          <div className="md:w-3/5 p-6 flex flex-col">
-                            <div className="flex-grow">
-                              <div className="flex items-center gap-2 mb-1">
-                                {activity.category.slice(0, 2).map((cat: string, index: number) => (
-                                
-                                  <Badge key={index} variant="outline" className="capitalize text-xs">{cat}</Badge>
-                                ))}
-                              </div>
-                              <h3 className="text-xl font-semibold mb-2">{activity.name}</h3>
-                              <div className="flex items-center text-muted-foreground mb-2 text-sm">
-                                <MapPin className="h-3.5 w-3.5 mr-1" />
-                                <span>{activity.location}</span>
-                                <span className="mx-2">•</span>
-                                <span>{activity.duration}</span>
-                              </div>
-                              <div className="flex items-center mb-3">
-                                {[...Array(5)].map((_, i) => (
-                                  <span key={i} className={`text-xs ${i < Math.floor(activity.rating) ? 'text-yellow-500' : 'text-gray-300'}`}>★</span>
-                                ))}
-                                <span className="ml-1 text-xs text-muted-foreground">{activity.rating.toFixed(1)}</span>
-                              </div>
-                              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                                {activity.description}
-                              </p>
-                            </div>
-                            
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  className="w-full mt-auto"
-                                  onClick={() => openBookingDialog(activity)}
-                                >
-                                  Book Now
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                  <DialogTitle>Book {activity.name}</DialogTitle>
-                                  <DialogDescription>
-                                    Complete your booking details below
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                  <div className="grid grid-cols-1 gap-2">
-                                    <Label htmlFor="booking-date">Date</Label>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
-                                        <Button
-                                          id="booking-date"
-                                          variant="outline"
-                                          className="w-full justify-start text-left font-normal"
-                                        >
-                                          <CalendarIcon className="mr-2 h-4 w-4" />
-                                          {bookingDetails.date ? format(bookingDetails.date, "PPP") : <span>Select date</span>}
-                                        </Button>
-                                      </PopoverTrigger>
-                                      <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                          mode="single"
-                                          selected={bookingDetails.date}
-                                          onSelect={(date) => setBookingDetails({...bookingDetails, date})}
-                                          initialFocus
-                                          disabled={(date) => date < new Date()}
-                                        />
-                                      </PopoverContent>
-                                    </Popover>
-                                  </div>
-                                  
-                                  <div className="grid grid-cols-1 gap-2">
-                                    <Label htmlFor="booking-time">Time</Label>
-                                    <select
-                                      id="booking-time"
-                                      className="w-full py-2 px-3 rounded-md border"
-                                      value={bookingDetails.time}
-                                      onChange={(e) => setBookingDetails({...bookingDetails, time: e.target.value})}
-                                    >
-                                      <option value="">Select time</option>
-                                      {timeSlots.map(slot => (
-                                        <option key={slot.value} value={slot.value}>{slot.label}</option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                  
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div className="grid grid-cols-1 gap-2">
-                                      <Label htmlFor="adults">Adults</Label>
-                                      <select
-                                        id="adults"
-                                        className="w-full py-2 px-3 rounded-md border"
-                                        value={bookingDetails.adults.toString()}
-                                        onChange={(e) => setBookingDetails({...bookingDetails, adults: parseInt(e.target.value)})}
-                                      >
-                                        {guestOptions.map(option => (
-                                          <option key={option.value} value={option.value}>{option.label}</option>
-                                        ))}
-                                      </select>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-2">
-                                      <Label htmlFor="children">Children</Label>
-                                      <select
-                                        id="children"
-                                        className="w-full py-2 px-3 rounded-md border"
-                                        value={bookingDetails.children.toString()}
-                                        onChange={(e) => setBookingDetails({...bookingDetails, children: parseInt(e.target.value)})}
-                                      >
-                                        {childrenOptions.map(option => (
-                                          <option key={option.value} value={option.value}>{option.label}</option>
-                                        ))}
-                                      </select>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="grid grid-cols-1 gap-1 pt-3">
-                                    <div className="flex justify-between text-sm">
-                                      <span>Price per person:</span>
-                                      <span>{activity?.price}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                      <span>Number of guests:</span>
-                                      <span>{bookingDetails.adults + bookingDetails.children}</span>
-                                    </div>
-                                    <Separator className="my-2" />
-                                    <div className="flex justify-between font-semibold">
-                                      <span>Total:</span>
-                                      <span>{activity?.price} × {bookingDetails.adults + bookingDetails.children}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex justify-end">
-                                  <Button type="submit">
-                                    Complete Booking
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        </div>
-                      </Card>
                     </motion.div>
-                  ))}
-                </motion.div>
-              ) : (
-                <Card className="bg-muted/40 p-8 text-center">
-                  <p className="text-muted-foreground mb-4">No experiences found matching your filters.</p>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setSearchTerm('');
-                      setSelectedLocations([]);
-                      setSelectedCategories([]);
-                      setPriceRange([]);
-                      setSelectedDate(undefined);
-                    }}
-                  >
-                    Reset Filters
-                  </Button>
-                </Card>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Booking Benefits */}
-      <section className="py-12 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">Why Book With Us</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              {
-                title: "Free Cancellation",
-                description: "Flexible booking options with free cancellation up to 24 hours before the experience.",
-                icon: "🔄"
-              },
-              {
-                title: "Verified Activities",
-                description: "All experiences are verified and meet our high quality standards.",
-                icon: "✓"
-              },
-              {
-                title: "Best Price Guarantee",
-                description: "Find a lower price elsewhere and we'll match it plus give you 10% off.",
-                icon: "💰"
-              },
-              {
-                title: "24/7 Support",
-                description: "Our customer support team is available 24/7 to assist you with any questions.",
-                icon: "🛎️"
-              }
-            ].map((benefit, index) => (
-              <Card key={index} className="h-full">
-                <CardContent className="p-6 text-center flex flex-col justify-between h-full">
-                  <div>
-                    <div className="text-4xl mb-4">{benefit.icon}</div>
-                    <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
-                    <p className="text-muted-foreground text-sm">{benefit.description}</p>
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">To</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <input 
+                          type="text" 
+                          placeholder="City or Airport" 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={flightTo}
+                          onChange={(e) => setFlightTo(e.target.value)}
+                        />
+                      </div>
+                    </motion.div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Departure</label>
+                      <div className="relative">
+                        <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <input 
+                          type="date" 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={flightDepartureDate}
+                          onChange={(e) => setFlightDepartureDate(e.target.value)}
+                        />
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Return (Optional)</label>
+                      <div className="relative">
+                        <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <input 
+                          type="date" 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={flightReturnDate}
+                          onChange={(e) => setFlightReturnDate(e.target.value)}
+                        />
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Travelers</label>
+                      <div className="relative">
+                        <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <select 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={flightTravelers}
+                          onChange={(e) => setFlightTravelers(e.target.value)}
+                        >
+                          <option value="1">1 Traveler</option>
+                          <option value="2">2 Travelers</option>
+                          <option value="3">3 Travelers</option>
+                          <option value="4">4 Travelers</option>
+                        </select>
+                      </div>
+                    </motion.div>
+                  </div>
+                  
+                  <motion.button 
+                    onClick={handleFlightSearch}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Search Flights
+                  </motion.button>
+                </div>
+              ) : (
+                <div className="bg-white/10 backdrop-blur-md p-6 rounded-lg border border-white/20">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Destination</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <input 
+                          type="text" 
+                          placeholder="City or Hotel" 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={hotelDestination}
+                          onChange={(e) => setHotelDestination(e.target.value)}
+                        />
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Check-in</label>
+                      <div className="relative">
+                        <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <input 
+                          type="date" 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={hotelCheckIn}
+                          onChange={(e) => setHotelCheckIn(e.target.value)}
+                        />
+                      </div>
+                    </motion.div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Check-out</label>
+                      <div className="relative">
+                        <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <input 
+                          type="date" 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={hotelCheckOut}
+                          onChange={(e) => setHotelCheckOut(e.target.value)}
+                        />
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Rooms</label>
+                      <div className="relative">
+                        <DoorOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <select 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={hotelRooms}
+                          onChange={(e) => setHotelRooms(e.target.value)}
+                        >
+                          <option value="1">1 Room</option>
+                          <option value="2">2 Rooms</option>
+                          <option value="3">3 Rooms</option>
+                        </select>
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Guests</label>
+                      <div className="relative">
+                        <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-300 h-5 w-5" />
+                        <select 
+                          className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          value={hotelGuests}
+                          onChange={(e) => setHotelGuests(e.target.value)}
+                        >
+                          <option value="1">1 Guest</option>
+                          <option value="2">2 Guests</option>
+                          <option value="3">3 Guests</option>
+                          <option value="4">4 Guests</option>
+                        </select>
+                      </div>
+                    </motion.div>
+                  </div>
+                  
+                  <motion.button 
+                    onClick={handleHotelSearch}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Search Hotels
+                  </motion.button>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    </section>
+  </div>
+)};

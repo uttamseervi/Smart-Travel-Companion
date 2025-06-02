@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
 import { useTheme } from 'next-themes'
 import { cn } from '@/lib/utils'
+import './navbar.css'
 
 const mainNavItems = [
   {
@@ -51,8 +52,8 @@ export function Navbar() {
 
   return (
     <header className={cn(
-      "sticky top-0 z-50 w-full transition-all duration-200 pl-1on",
-      isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent"
+      "custom-style-navbar sticky top-0 z-50 w-full transition-all duration-200 pl-1on",
+      isScrolled ? "bg-background/80 backdrop-blur-md shadow-sm" : "bg-transparent", 
     )}>
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6 md:gap-8 lg:gap-10">

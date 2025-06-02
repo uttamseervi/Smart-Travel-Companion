@@ -34,7 +34,7 @@ export function MuseumFinder() {
             setLoading(true);
             setError(null);
 
-            const url = `https://api.geoapify.com/v2/places?categories=entertainment.museum&filter=circle:${longitude},${latitude},${radius}&limit=10&apiKey=${apiKey}`;
+            const url = `https://api.geoapify.com/v2/places?categories=entertainment.museum&filter=circle:${longitude},${latitude},${radius}&limit=20&apiKey=${apiKey}`;
 
             const response = await fetch(url);
             if (!response.ok) {
